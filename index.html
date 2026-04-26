@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Soham Shah — Silent Engineer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  :root{
+    /* Dark "obsidian ink" theme */
+    --ink:#f0e9db;             /* primary text (off-white) */
+    --ink-2:#c9c2b2;           /* secondary text */
+    --paper:#0b0a08;           /* page background (deep obsidian) */
+    --paper-2:#141210;         /* card surface */
+    --paper-3:#1c1a17;         /* elevated surface */
+    --paper-card:#ece5d5;      /* LIGHT card surface used for Projects (preserved) */
+    --red:#d94a37;             /* primary accent (brighter for dark) */
+    --red-deep:#8a2518;
+    --gold:#c9a848;
+    --muted:#8c8576;
+    --line:rgba(240,233,219,.12);
+    --line-soft:rgba(240,233,219,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    background:var(--paper);color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body{min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .serif{font-family:'Fraunces',serif}
+  .kanji{font-family:'Noto Serif JP',serif;font-weight:900}
+
+  /* Dark obsidian texture — subtle warm glow + grain */
+  .paper-bg{
+    background:
+      radial-gradient(1300px 900px at 12% 0%, rgba(217,74,55,.07), transparent 60%),
+      radial-gradient(1100px 800px at 100% 100%, rgba(201,168,72,.06), transparent 60%),
+      var(--paper);
+    position:relative;
+  }
+  .paper-bg::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .96  0 0 0 0 .93  0 0 0 0 .86  0 0 0 .05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity:.6;mix-blend-mode:overlay;
+  }
+
+  /* Typographic helpers */
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+  .hl-red{color:var(--red)}
+  ::selection{background:var(--red);color:var(--paper)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     (tweaks panel removed)
+═══════════════════════════════════════════════════════ -->
+<script type="text/babel">
+// placeholder — intentionally empty
+void 0;
+
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;height:22px;
+    border-radius:6px;cursor:default;padding:0}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const setTweak = React.useCallback((key, val) => {
+    setValues((prev) => ({ ...prev, [key]: val }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     INTRO — "The Kenjutsu Reveal" — cross slash (X)
+═══════════════════════════════════════════════════════ -->
+<script type="text/babel">
+
+(function injectIntroCSS(){
+  if (document.getElementById('intro-css')) return;
+  const css = `
+  /* ── ROOT ── */
+  .intro-root {
+    position: fixed; inset: 0; z-index: 100; overflow: hidden;
+    background: #050403;
+    transition: opacity .8s ease;
+  }
+  .intro-root.exiting { opacity: 0; pointer-events: none; }
+
+  /* ── BACKGROUND ── */
+  .intro-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 50%, rgba(18,9,6,.88), transparent 65%),
+      radial-gradient(ellipse 110% 90% at 15% -5%, rgba(10,5,3,.72), transparent 55%),
+      radial-gradient(ellipse 100% 80% at 100% 110%, rgba(8,4,2,.5),  transparent 55%),
+      #050403;
+    opacity: 0; animation: itrBgIn .9s ease forwards;
+  }
+  @keyframes itrBgIn { to { opacity: 1; } }
+
+  .intro-grain {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .97  0 0 0 0 .94  0 0 0 0 .88  0 0 0 .055 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: .5; mix-blend-mode: overlay;
+  }
+
+  /*
+   * ── 4-PIECE SHARDS ────────────────────────────────────────────────────────
+   * Two cuts form an X crossing at screen-centre (50%, 50%).
+   * Each cut goes from y=20% on its entry edge to y=80% on the exit edge.
+   *
+   *   Cut 1 (right→left): enters right-edge at y≈23%, exits left-edge at y≈77%
+   *   Cut 2 (left→right): enters left-edge at y≈23%, exits right-edge at y≈77%
+   *
+   * The four dark panels cover the whole screen seamlessly before the split.
+   * On split, they fly: top-up, bottom-down, left-left, right-right.
+   * ─────────────────────────────────────────────────────────────────────── */
+  .shards-wrap { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .shard {
+    position: absolute; inset: 0; background: #050403;
+    will-change: transform, opacity;
+    transition: transform 1.05s cubic-bezier(.5,0,.7,.45), opacity .68s ease .22s;
+  }
+  /* top panel: pentagon above both cut lines */
+  .shard-t {
+    clip-path: polygon(0 0, 100% 0, 100% 23%, 50% 50%, 0 23%);
+    transform-origin: 50% 0;
+  }
+  /* bottom panel: pentagon below both cut lines */
+  .shard-b {
+    clip-path: polygon(0 77%, 50% 50%, 100% 77%, 100% 100%, 0 100%);
+    transform-origin: 50% 100%;
+  }
+  /* left triangle: left quadrant of the X */
+  .shard-l {
+    clip-path: polygon(0 23%, 50% 50%, 0 77%);
+    transform-origin: 0 50%;
+  }
+  /* right triangle: right quadrant of the X */
+  .shard-r {
+    clip-path: polygon(100% 23%, 100% 77%, 50% 50%);
+    transform-origin: 100% 50%;
+  }
+  .shards-wrap.split .shard-t { transform: translateY(-128%) rotate(-1.5deg); opacity: 0; }
+  .shards-wrap.split .shard-b { transform: translateY(128%)  rotate(1.5deg);  opacity: 0; }
+  .shards-wrap.split .shard-l { transform: translateX(-128%) rotate(1.5deg);  opacity: 0; }
+  .shards-wrap.split .shard-r { transform: translateX(128%)  rotate(-1.5deg); opacity: 0; }
+
+  /* ── CANVASES — one per blade, above the shards ── */
+  .intro-canvas { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+
+  /* ── GLINT ─ rg = right-edge entry, lg = left-edge entry ── */
+  .intro-glint {
+    position: absolute; z-index: 3;
+    width: 20px; height: 20px; border-radius: 50%;
+    top: calc(20% - 10px);
+    background: radial-gradient(circle, white, rgba(255,242,185,.75) 44%, transparent);
+    box-shadow:
+      0 0 28px 10px rgba(255,255,255,.6),
+      0 0 72px 24px rgba(255,210,110,.28);
+    animation: glintPop .24s ease-out forwards;
+  }
+  .intro-glint.rg { right: 0; left: auto;  transform: translateX(50%);  }
+  .intro-glint.lg { left:  0; right: auto; transform: translateX(-50%); }
+  @keyframes glintPop {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ── CUT LINES ── */
+  .intro-cut {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 4; pointer-events: none;
+  }
+  @keyframes cutDraw { to { stroke-dashoffset: 0; } }
+  @keyframes cutCool {
+    0%   { stroke: white;               opacity: 1;  }
+    18%  { stroke: #fff5d0;             opacity: 1;  }
+    44%  { stroke: #ff9060;             opacity: .96;}
+    73%  { stroke: #d94a37;             opacity: .9; }
+    100% { stroke: rgba(217,74,55,.22); opacity: .3; }
+  }
+
+  /* ── IMPACT FLASH ── */
+  .intro-flash {
+    position: absolute; inset: 0; z-index: 5;
+    background: white; opacity: 0; pointer-events: none;
+  }
+  .intro-flash.active { animation: impactFlash .46s ease-out forwards; }
+  @keyframes impactFlash {
+    0%   { opacity: .92; }
+    28%  { opacity: .42; }
+    100% { opacity: 0;   }
+  }
+
+  /* ── SPARKS ── */
+  .intro-spark {
+    position: absolute; left: 50%; top: 50%;
+    border-radius: 50%; z-index: 5; pointer-events: none;
+    transform: translate(-50%,-50%);
+    background: radial-gradient(circle at 40% 35%, #fffbe0, #ffb050 48%, #d94a37);
+    box-shadow: 0 0 5px 2px rgba(255,165,60,.45);
+    animation: sparkFly .7s cubic-bezier(.1,.72,.2,1) forwards;
+  }
+  @keyframes sparkFly {
+    0%   { opacity: 0; transform: translate(-50%,-50%) scale(0); }
+    10%  { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.22); }
+  }
+
+  /* ── WORDMARK ── */
+  .wm-wrap {
+    position: absolute; inset: 0; z-index: 6; pointer-events: none;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    animation: wmUp .62s cubic-bezier(.18,.8,.2,1) forwards;
+  }
+  @keyframes wmUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .wm-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500; font-style: italic;
+    font-size: clamp(58px, 10.5vw, 150px);
+    line-height: .96; letter-spacing: -.025em;
+    color: var(--ink);
+    text-shadow: 0 0 90px rgba(240,233,219,.07);
+  }
+  .wm-name .wm-red { color: var(--red); }
+  .wm-rule {
+    width: clamp(150px, 34vw, 460px); height: 1.5px; margin-top: 22px;
+    background: linear-gradient(90deg, transparent, var(--red) 16%, #ff7055 50%, var(--red) 84%, transparent);
+    box-shadow: 0 0 20px rgba(217,74,55,.48);
+    animation: wmRuleIn .44s cubic-bezier(.2,.8,.2,1) .18s both;
+    transform-origin: left center;
+  }
+  @keyframes wmRuleIn {
+    from { transform: scaleX(0); opacity: 0; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+  .wm-sub {
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: .4em; text-transform: uppercase;
+    color: rgba(240,233,219,.48);
+    animation: wmSubIn .56s ease .3s both;
+  }
+  @keyframes wmSubIn {
+    from { opacity: 0; letter-spacing: .68em; }
+    to   { opacity: 1; letter-spacing: .4em; }
+  }
+
+  /* ── CORNERS ── */
+  .itr-corner {
+    position: absolute; z-index: 6;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase;
+    color: rgba(240,233,219,.5);
+    animation: itrFadeIn .56s ease forwards;
+  }
+  .itr-corner.tl { top: 30px; left: 34px; }
+  .itr-corner.tr { top: 30px; right: 34px; color: var(--red); }
+  .itr-corner.bl { bottom: 30px; left: 34px; }
+  .itr-corner.br { bottom: 30px; right: 34px; text-align: right; line-height: 1.75; }
+  .itr-corner .cdot {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--red); border-radius: 50%;
+    margin-right: 9px; vertical-align: middle;
+  }
+  .itr-fc {
+    position: absolute; width: 34px; height: 34px; z-index: 6;
+    border: 1px solid rgba(240,233,219,.28);
+    animation: itrFadeIn .56s ease .1s both;
+  }
+  .itr-fc.tl { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+  .itr-fc.tr { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+  .itr-fc.bl { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
+  .itr-fc.br { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
+  @keyframes itrFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  `;
+  const s = document.createElement('style');
+  s.id = 'intro-css';
+  s.textContent = css;
+  document.head.appendChild(s);
+})();
+
+function Intro({ onDone }) {
+  const canvas1Ref  = React.useRef(null);
+  const canvas2Ref  = React.useRef(null);
+  const doneRef     = React.useRef(false);
+
+  const [glint,       setGlint]       = React.useState(null); // null | 'rg' | 'lg'
+  const [flashKey,    setFlashKey]    = React.useState(0);
+  const [showCut,     setShowCut]     = React.useState(false);
+  const [sparking,    setSparking]    = React.useState(false);
+  const [splitting,   setSplitting]   = React.useState(false);
+  const [showWM,      setShowWM]      = React.useState(false);
+  const [showCorners, setShowCorners] = React.useState(false);
+  const [exiting,     setExiting]     = React.useState(false);
+
+  /* ─ blade sweep — parameterised entry/exit coords for both blades ────── */
+  const sweepBlade = React.useCallback(function(canvasRef, x0frac, y0frac, x1frac, y1frac) {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var x0 = W * x0frac, y0 = H * y0frac;
+    var x1 = W * x1frac, y1 = H * y1frac;
+    var DUR = 148;
+    var trail = [];
+    var start = performance.now();
+
+    function drawTrail() {
+      ctx.clearRect(0, 0, W, H);
+      if (trail.length < 2) return;
+      for (var i = 1; i < trail.length; i++) {
+        var frac = i / trail.length;
+        var px = trail[i-1].x, py = trail[i-1].y;
+        var cx = trail[i].x,   cy = trail[i].y;
+        // Heat glow
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx, cy);
+        ctx.strokeStyle = '#d94a37'; ctx.lineWidth = 36;
+        ctx.globalAlpha = frac * 0.13;
+        ctx.shadowBlur = 20; ctx.shadowColor = '#d94a37';
+        ctx.stroke();
+        // Warm shimmer
+        var g1 = ctx.createLinearGradient(px, py, cx, cy);
+        g1.addColorStop(0,    'transparent');
+        g1.addColorStop(0.42, 'rgba(255,218,110,.92)');
+        g1.addColorStop(1,    'rgba(255,252,220,.88)');
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx, cy);
+        ctx.strokeStyle = g1; ctx.lineWidth = 11;
+        ctx.globalAlpha = frac * 0.9; ctx.shadowBlur = 0;
+        ctx.stroke();
+        // Bright core
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx, cy);
+        ctx.strokeStyle = 'rgba(255,252,215,' + frac + ')';
+        ctx.lineWidth = 2.5; ctx.globalAlpha = frac;
+        ctx.stroke();
+      }
+      // Tip glow
+      if (trail.length) {
+        var tip = trail[trail.length - 1];
+        var rg = ctx.createRadialGradient(tip.x, tip.y, 0, tip.x, tip.y, 44);
+        rg.addColorStop(0,    'rgba(255,255,255,1)');
+        rg.addColorStop(0.18, 'rgba(255,242,165,.92)');
+        rg.addColorStop(0.52, 'rgba(255,100,25,.46)');
+        rg.addColorStop(1,    'transparent');
+        ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.arc(tip.x, tip.y, 44, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    }
+
+    function frame(now) {
+      var t = Math.min((now - start) / DUR, 1);
+      var e = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
+      trail.push({ x: x0 + (x1-x0)*e, y: y0 + (y1-y0)*e });
+      if (trail.length > 16) trail.shift();
+      drawTrail();
+      if (t < 1) { requestAnimationFrame(frame); return; }
+      // Fade trail out over 200ms
+      var fs = performance.now();
+      function fade(fn) {
+        var ft = Math.min((fn - fs) / 200, 1);
+        ctx.clearRect(0, 0, W, H);
+        for (var i = 1; i < trail.length; i++) {
+          var frac = (i / trail.length) * (1 - ft);
+          if (frac <= 0.01) continue;
+          ctx.beginPath();
+          ctx.moveTo(trail[i-1].x, trail[i-1].y);
+          ctx.lineTo(trail[i].x, trail[i].y);
+          ctx.strokeStyle = 'rgba(255,252,215,' + frac + ')';
+          ctx.lineWidth = 2.5; ctx.globalAlpha = frac;
+          ctx.stroke(); ctx.globalAlpha = 1;
+        }
+        if (ft < 1) requestAnimationFrame(fade);
+        else ctx.clearRect(0, 0, W, H);
+      }
+      requestAnimationFrame(fade);
+    }
+    requestAnimationFrame(frame);
+  }, []);
+
+  /* ─ orchestration ────────────────────────────────────────────────────── */
+  React.useEffect(function() {
+    [canvas1Ref, canvas2Ref].forEach(function(ref) {
+      if (ref.current) {
+        ref.current.width  = window.innerWidth;
+        ref.current.height = window.innerHeight;
+      }
+    });
+
+    var T = [];
+    // Blade 1: glint at right edge, sweeps right→left
+    T.push(setTimeout(function() { setGlint('rg'); },  300));
+    T.push(setTimeout(function() {
+      setGlint(null);
+      sweepBlade(canvas1Ref, 1.05, 0.20, -0.05, 0.80);
+    }, 500));
+    // Blade 2: glint at left edge, sweeps left→right
+    T.push(setTimeout(function() { setGlint('lg'); },  590));
+    T.push(setTimeout(function() {
+      setGlint(null);
+      sweepBlade(canvas2Ref, -0.05, 0.20, 1.05, 0.80);
+    }, 640));
+    // Impact: both cuts visible + flash + sparks
+    T.push(setTimeout(function() {
+      setFlashKey(function(k) { return k + 1; });
+      setSparking(true);
+      setShowCut(true);
+    }, 840));
+    // Screen shatters in 4 directions
+    T.push(setTimeout(function() { setSplitting(true);   }, 1420));
+    // Identity rises from the centre
+    T.push(setTimeout(function() { setShowWM(true);      }, 1820));
+    T.push(setTimeout(function() { setShowCorners(true); }, 2040));
+    // Exit
+    T.push(setTimeout(function() { setExiting(true);     }, 3440));
+    T.push(setTimeout(function() {
+      if (!doneRef.current) { doneRef.current = true; if (onDone) onDone(); }
+    }, 4200));
+
+    return function() { T.forEach(clearTimeout); };
+  }, [sweepBlade, onDone]);
+
+  /* ─ sparks radiate from screen centre (X crosspoint) ───────────────── */
+  var sparks = React.useMemo(function() {
+    return Array.from({ length: 36 }, function(_, i) {
+      var a    = (i / 36) * Math.PI * 2;
+      var dist = 68 + (i % 5) * 30;
+      return { dx: Math.cos(a)*dist, dy: Math.sin(a)*dist, size: 2.5+(i%4)*1.9, delay: (i%6)*12 };
+    });
+  }, []);
+
+  /*
+   * Cut lengths for lines spanning (105,20)→(-5,80) or (-5,20)→(105,80):
+   *   dx = 110 viewBox units, dy = 60 viewBox units
+   *   length = sqrt(110² + 60²) = sqrt(15700) ≈ 125.3 → use 126
+   */
+  var CUT_LEN = 126;
+
+  return (
+    <div className={"intro-root" + (exiting ? " exiting" : "")}>
+      <div className="intro-bg"></div>
+      <div className="intro-grain"></div>
+
+      {/* Four dark shard panels — z:2, tile the entire screen before split */}
+      <div className={"shards-wrap" + (splitting ? " split" : "")}>
+        <div className="shard shard-t"></div>
+        <div className="shard shard-b"></div>
+        <div className="shard shard-l"></div>
+        <div className="shard shard-r"></div>
+      </div>
+
+      {/* Glints + blade canvases — z:3, above shards */}
+      {glint && <div className={"intro-glint " + glint}></div>}
+      <canvas ref={canvas1Ref} className="intro-canvas"></canvas>
+      <canvas ref={canvas2Ref} className="intro-canvas"></canvas>
+
+      {/* Impact flash — z:5 */}
+      <div key={"f" + flashKey}
+           className={"intro-flash" + (flashKey > 0 ? " active" : "")}></div>
+
+      {/* Sparks — z:5 */}
+      {sparking && sparks.map(function(s, i) {
+        return (
+          <div key={i} className="intro-spark"
+            style={{ "--dx": s.dx+"px", "--dy": s.dy+"px",
+                     width: s.size+"px", height: s.size+"px",
+                     animationDelay: s.delay+"ms" }} />
+        );
+      })}
+
+      {/* X cut lines — z:4 */}
+      {showCut && (
+        <svg className="intro-cut" viewBox="0 0 100 100"
+             preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="cg-blur" x="-60%" y="-300%" width="220%" height="700%">
+              <feGaussianBlur stdDeviation="2.6"/>
+            </filter>
+          </defs>
+          {/* Cut 1 — right→left (upper-right to lower-left) */}
+          <line x1="105" y1="20" x2="-5" y2="80"
+            stroke="rgba(217,74,55,.9)" strokeWidth="5.5" filter="url(#cg-blur)"/>
+          <line x1="105" y1="20" x2="-5" y2="80"
+            stroke="white" strokeWidth="1.2"
+            strokeDasharray={CUT_LEN} strokeDashoffset={CUT_LEN}
+            style={{ animation: "cutDraw .15s ease-out forwards, cutCool 2.6s ease .18s forwards" }}/>
+          {/* Cut 2 — left→right (upper-left to lower-right) */}
+          <line x1="-5" y1="20" x2="105" y2="80"
+            stroke="rgba(217,74,55,.9)" strokeWidth="5.5" filter="url(#cg-blur)"/>
+          <line x1="-5" y1="20" x2="105" y2="80"
+            stroke="white" strokeWidth="1.2"
+            strokeDasharray={CUT_LEN} strokeDashoffset={CUT_LEN}
+            style={{ animation: "cutDraw .15s ease-out .14s forwards, cutCool 2.6s ease .32s forwards" }}/>
+        </svg>
+      )}
+
+      {/* Wordmark — z:6, rises from the centre after the X split */}
+      {showWM && (
+        <div className="wm-wrap">
+          <div className="wm-name">
+            Soham Shah<span className="wm-red">.</span>
+          </div>
+          <div className="wm-rule"></div>
+          <div className="wm-sub">Silent Engineer &middot; MS CS &middot; Arizona State</div>
+        </div>
+      )}
+
+      {/* Corners — z:6 */}
+      {showCorners && (
+        <React.Fragment>
+          <div className="itr-corner tl"><span className="cdot"></span>Dossier &middot; 01</div>
+          <div className="itr-corner tr">// Live</div>
+          <div className="itr-corner bl">33.4&deg;N &middot; 111.9&deg;W &middot; Tempe, AZ</div>
+          <div className="itr-corner br">MMXXVI &middot; MS CS<br/>github.com/soham842op</div>
+          <div className="itr-fc tl"></div>
+          <div className="itr-fc tr"></div>
+          <div className="itr-fc bl"></div>
+          <div className="itr-fc br"></div>
+        </React.Fragment>
+      )}
+    </div>
+  );
+}
+
+window.Intro = Intro;
+</script>
+
+
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTIONS — dark obsidian, light project cards preserved
+═══════════════════════════════════════════════════════ -->
+<script type="text/babel">
+
+(function injectSectionCSS(){
+  if (document.getElementById('sec-css')) return;
+  const css = `
+  /* ─────── TOP NAV ─────── */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 40px;
+    background:linear-gradient(180deg, rgba(11,10,8,.9), rgba(11,10,8,.5) 70%, transparent);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:var(--ink);
+  }
+  .nav-brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:16px;letter-spacing:.02em}
+  .nav-brand .dot{width:8px;height:8px;background:var(--red);border-radius:50%;box-shadow:0 0 12px rgba(217,74,55,.55)}
+  .nav-links{display:flex;gap:28px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+  .nav-links a{position:relative;padding:4px 0;color:var(--muted)}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:0;background:var(--red);transition:width .3s ease}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:10px 16px;border:1px solid var(--ink);color:var(--ink);transition:background .2s, color .2s}
+  .nav-cta:hover{background:var(--ink);color:var(--paper)}
+  @media (max-width:768px){.nav-links{display:none} .nav{padding:18px 24px}}
+
+  /* ─────── HERO ─────── */
+  .hero{padding:120px 0 80px;position:relative}
+  .banner{
+    position:relative;margin:0 40px;
+    border:1px solid var(--line);
+    background:#0a0806;
+    overflow:hidden;aspect-ratio:2400/800;
+    box-shadow:0 40px 80px -40px rgba(0,0,0,.7), 0 0 0 1px rgba(240,233,219,.04) inset;
+  }
+  .banner svg{display:block;width:100%;height:100%}
+  .banner .banner-meta{
+    position:absolute;top:18px;left:22px;right:22px;display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;
+    text-transform:uppercase;color:rgba(240,233,219,.75);pointer-events:none;z-index:2;
+  }
+  .banner .banner-kanji{
+    position:absolute;right:26px;bottom:14px;
+    font-family:'Noto Serif JP',serif;font-weight:900;color:rgba(240,233,219,.92);
+    font-size:44px;text-shadow:0 2px 20px rgba(0,0,0,.8);pointer-events:none;z-index:2;
+  }
+
+  .hero-below{max-width:1400px;margin:72px auto 0;padding:0 56px;display:grid;grid-template-columns:auto 1fr;gap:44px;align-items:end}
+  .hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
+  .hero-name{
+    font-family:'Fraunces',serif;font-weight:500;font-style:italic;
+    font-size:clamp(64px,10vw,168px);line-height:.92;letter-spacing:-0.02em;
+    color:var(--ink);margin-top:14px;
+  }
+  .hero-name em{color:var(--red);font-style:italic}
+  .hero-tag{font-family:'Fraunces',serif;font-weight:300;font-style:italic;font-size:clamp(17px,1.3vw,20px);color:var(--ink-2);max-width:480px;line-height:1.55}
+  .hero-actions{display:flex;gap:12px;margin-top:24px}
+  .btn-primary{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;padding:14px 22px;background:var(--red);color:var(--paper);display:inline-flex;align-items:center;gap:10px;transition:transform .2s, box-shadow .2s}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 24px -8px rgba(217,74,55,.6)}
+  .btn-primary .arrow{display:inline-block;transition:transform .2s}
+  .btn-primary:hover .arrow{transform:translateX(4px)}
+  .btn-ghost{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;padding:14px 22px;border:1px solid var(--ink);color:var(--ink);transition:background .2s, color .2s}
+  .btn-ghost:hover{background:var(--ink);color:var(--paper)}
+  .btn-dl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;padding:14px 22px;border:1px solid var(--red);color:var(--red);display:inline-flex;align-items:center;gap:8px;transition:background .2s, color .2s, box-shadow .2s}
+  .btn-dl:hover{background:var(--red);color:var(--paper);box-shadow:0 8px 22px -6px rgba(217,74,55,.55)}
+  @media (max-width:900px){.hero-below{grid-template-columns:1fr;padding:0 32px}}
+
+  /* ─────── Reveals ─────── */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ─────── Chapter Header ─────── */
+  .chap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 0 28px}
+  .chap .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.36em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .chap .label .idx{color:var(--red);margin-right:10px}
+  .chap .title{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:clamp(48px,8vw,112px);line-height:.95;letter-spacing:-0.02em;color:var(--ink)}
+  .chap .title em{color:var(--red);font-style:italic}
+  .chap .rule{margin-top:22px;width:48px;height:1px;background:var(--ink);opacity:.5}
+
+  /* ─────── PRINCIPLES ─────── */
+  .principles{padding:100px 56px 80px;max-width:1200px;margin:0 auto}
+  .principles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:36px}
+  @media (max-width:900px){.principles-grid{grid-template-columns:1fr}}
+  .p-card{border-top:1px solid var(--ink);padding:24px 0 12px}
+  .p-card .num{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--red);text-transform:uppercase}
+  .p-card .h{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:32px;line-height:1.05;margin-top:10px;color:var(--ink)}
+  .p-card .b{font-family:'Fraunces',serif;font-weight:400;font-size:15px;line-height:1.65;color:var(--ink-2);margin-top:12px;max-width:360px}
+
+  /* ─────── ABOUT ─────── */
+  .about{padding:120px 56px 80px;max-width:1200px;margin:0 auto}
+  .about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:start;margin-top:36px}
+  @media (max-width:900px){.about-grid{grid-template-columns:1fr;gap:48px}}
+  .bio p{font-family:'Fraunces',serif;font-size:17px;line-height:1.75;color:var(--ink-2);margin-bottom:16px}
+  .bio p b{color:var(--ink);font-weight:600}
+  .bio .mark{color:var(--red);font-style:italic}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px}
+  .stat{border-top:1px solid var(--ink);padding-top:12px}
+  .stat .v{font-family:'Fraunces',serif;font-weight:500;font-size:36px;line-height:1;color:var(--ink)}
+  .stat .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .skills{display:flex;flex-direction:column;gap:16px}
+  .skill .row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+  .skill .row .p{color:var(--red)}
+  .bar{height:2px;background:var(--line);position:relative;overflow:hidden}
+  .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+  .skills.in .bar::after{transform:scaleX(1)}
+
+  /* ─────── EXPERIENCE ─────── */
+  .experience{padding:120px 56px 80px;max-width:1100px;margin:0 auto}
+  .exp-list{margin-top:44px;border-top:1px solid var(--ink)}
+  .exp-item{display:grid;grid-template-columns:220px 1fr 180px;gap:40px;padding:32px 0;border-bottom:1px solid var(--line);align-items:start}
+  .exp-item .co{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:28px;color:var(--ink);line-height:1.05}
+  .exp-item .date{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .exp-item .role{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+  .exp-item ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .exp-item li{font-family:'Fraunces',serif;font-size:15px;line-height:1.65;color:var(--ink-2);padding-left:16px;position:relative}
+  .exp-item li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:1px;background:var(--red)}
+  .exp-item .tags{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);line-height:1.9}
+  @media (max-width:900px){.exp-item{grid-template-columns:1fr;gap:14px}}
+
+  /* ─────── PROJECTS (light editorial cards on dark page) ─────── */
+  .projects{padding:120px 56px 80px;max-width:1300px;margin:0 auto}
+  .pj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
+  @media (max-width:1000px){.pj-grid{grid-template-columns:1fr 1fr}}
+  @media (max-width:680px){.pj-grid{grid-template-columns:1fr}}
+  .pj-card{
+    position:relative;overflow:hidden;
+    border:1px solid rgba(15,13,10,.14);
+    background:#ece5d5;
+    color:#0f0d0a;
+    padding:0;display:flex;flex-direction:column;
+    min-height:420px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.6);
+    transition:transform .3s, border-color .3s;
+  }
+  .pj-card:hover{transform:translateY(-3px);border-color:#0f0d0a}
+  .pj-hero{
+    position:relative;aspect-ratio:4/3;
+    background:#ddd4c2;overflow:hidden;
+    border-bottom:1px solid rgba(15,13,10,.14);
+  }
+  .pj-hero svg{width:100%;height:100%;display:block}
+  .pj-hero .idx{
+    position:absolute;top:14px;right:16px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;
+    text-transform:uppercase;color:#0f0d0a;
+  }
+  .pj-body{padding:22px 22px 26px;display:flex;flex-direction:column;flex:1}
+  .pj-name{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:28px;color:#0f0d0a;line-height:1.05}
+  .pj-desc{font-family:'Fraunces',serif;font-size:15px;line-height:1.6;color:#2a2620;margin-top:10px}
+  .pj-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .pj-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:4px 8px;border:1px solid rgba(15,13,10,.22);color:#2a2620}
+  .pj-arrow{margin-top:auto;padding-top:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;display:flex;justify-content:space-between;color:#0f0d0a}
+  .pj-arrow .ar{transition:transform .2s}
+  .pj-card:hover .pj-arrow .ar{transform:translateX(4px)}
+
+  /* ─────── EDUCATION ─────── */
+  .education{padding:120px 56px 80px;max-width:1100px;margin:0 auto}
+  .edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px}
+  @media (max-width:800px){.edu-grid{grid-template-columns:1fr}}
+  .edu-card{position:relative;padding:28px 28px 28px 36px;background:var(--paper-2);border-left:3px solid var(--red);border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .edu-card .deg{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:24px;line-height:1.15;color:var(--ink)}
+  .edu-card .school{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-top:10px}
+  .edu-card .meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:14px;display:flex;gap:18px;flex-wrap:wrap}
+
+  /* ─────── CONTACT ─────── */
+  .contact{position:relative;padding:140px 56px 100px;overflow:hidden;text-align:center}
+  .contact .kanji-bg{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-weight:900;font-size:min(58vh,46vw);color:var(--ink);opacity:.055;line-height:1;pointer-events:none;user-select:none}
+  .contact h2{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:clamp(48px,8vw,112px);line-height:.95;letter-spacing:-0.02em;position:relative;z-index:2;color:var(--ink)}
+  .contact h2 em{color:var(--red);font-style:italic}
+  .contact p{font-family:'Fraunces',serif;font-style:italic;font-size:18px;color:var(--ink-2);margin-top:18px;position:relative;z-index:2}
+  .contact-links{position:relative;z-index:2;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:38px}
+  .contact-links a{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:14px 20px;border:1px solid var(--ink);color:var(--ink);transition:background .2s, color .2s}
+  .contact-links a:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+  .contact-coords{position:relative;z-index:2;margin-top:48px;display:flex;justify-content:center;gap:28px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;flex-wrap:wrap}
+
+  /* ─────── FOOTER ─────── */
+  .footer{padding:28px 40px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .footer .brand{display:flex;gap:10px;align-items:center;color:var(--ink)}
+  .footer .brand .kj{font-family:'Noto Serif JP',serif;color:var(--red);font-weight:900;font-size:18px}
+  @media (max-width:680px){.footer{flex-direction:column;gap:14px;text-align:center}}
+
+  /* ─────── Scroll progress ─────── */
+  .scroll-prog{position:fixed;left:0;top:0;height:2px;background:var(--red);width:var(--p,0%);z-index:60;transition:width .1s linear;box-shadow:0 0 10px rgba(217,74,55,.55)}
+  `;
+  const style = document.createElement('style');
+  style.id = 'sec-css';
+  style.textContent = css;
+  document.head.appendChild(style);
+})();
+
+function useReveal(){
+  React.useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .skills').forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
+
+function ScrollProgress(){
+  React.useEffect(() => {
+    const bar = document.querySelector('.scroll-prog');
+    const onScroll = () => {
+      const h = document.documentElement;
+      const p = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+      if (bar) bar.style.setProperty('--p', p + '%');
+    };
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return <div className="scroll-prog"></div>;
+}
+
+function Nav(){
+  return (
+    <nav className="nav">
+      <div className="nav-brand"><span className="dot"></span>Soham Shah</div>
+      <div className="nav-links">
+        <a href="#principles">Principles</a>
+        <a href="#about">About</a>
+        <a href="#experience">Work</a>
+        <a href="#projects">Projects</a>
+        <a href="#education">Edu</a>
+      </div>
+      <a href="#contact" className="nav-cta">Contact ↗</a>
+    </nav>
+  );
+}
+
+function LandscapeBanner(){
+  return (
+    <svg viewBox="0 0 2400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0d0a07"/>
+          <stop offset="0.5" stopColor="#1a110a"/>
+          <stop offset="1" stopColor="#3f1c10"/>
+        </linearGradient>
+        <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#f4d79e"/>
+          <stop offset="0.55" stopColor="#e8a964"/>
+          <stop offset="1" stopColor="#c94a2a" stopOpacity="0"/>
+        </radialGradient>
+        <linearGradient id="cloudRed" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e04a2a"/>
+          <stop offset="1" stopColor="#5a1a0a"/>
+        </linearGradient>
+        <linearGradient id="cloudLight" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#d9cdb4"/>
+          <stop offset="1" stopColor="#7a6c55"/>
+        </linearGradient>
+        <linearGradient id="mFar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#2f180d"/>
+          <stop offset="1" stopColor="#150905"/>
+        </linearGradient>
+        <linearGradient id="mMid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#1a0d07"/>
+          <stop offset="1" stopColor="#0a0503"/>
+        </linearGradient>
+        <linearGradient id="mNear" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#070402"/>
+          <stop offset="1" stopColor="#030100"/>
+        </linearGradient>
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/>
+          <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .08 0"/>
+          <feComposite in2="SourceGraphic" operator="in"/>
+        </filter>
+      </defs>
+
+      <rect x="0" y="0" width="2400" height="800" fill="url(#sky)"/>
+      <circle cx="1300" cy="300" r="220" fill="url(#sun)"/>
+      <circle cx="1300" cy="300" r="110" fill="#f6d89c" opacity=".92"/>
+
+      <path d="M-40,160 C120,90 280,120 420,100 C560,80 700,150 820,130 C940,110 1060,180 1180,170 C1240,165 1290,190 1290,210 C1290,240 1200,265 1070,255 C920,245 780,280 640,270 C500,260 360,300 220,290 C100,282 -20,300 -40,280 Z"
+        fill="url(#cloudRed)" opacity=".92"/>
+      <path d="M680,260 C820,215 970,240 1110,220 C1260,200 1410,250 1560,240 C1700,232 1820,270 1900,260 C1940,256 1950,290 1880,310 C1760,335 1610,320 1470,335 C1320,352 1180,330 1040,345 C920,358 780,340 700,330 C640,322 620,290 680,260 Z"
+        fill="url(#cloudLight)" opacity=".82"/>
+      <path d="M1550,380 C1680,340 1810,360 1940,340 C2080,318 2220,360 2350,350 C2420,344 2460,370 2440,395 C2400,425 2260,420 2120,430 C1980,440 1820,460 1680,450 C1580,444 1480,430 1500,410 C1512,398 1530,388 1550,380 Z"
+        fill="url(#cloudRed)" opacity=".82"/>
+      <path d="M180,380 C240,368 300,380 360,372 C420,365 460,384 440,398 C400,412 330,404 270,410 C210,416 160,408 180,380 Z" fill="url(#cloudLight)" opacity=".6"/>
+      <path d="M2050,190 C2110,180 2180,195 2240,188 C2290,182 2330,200 2300,212 C2260,224 2200,218 2140,222 C2090,225 2030,218 2050,190 Z" fill="url(#cloudRed)" opacity=".55"/>
+
+      <path d="M0,540 L180,420 L320,480 L460,400 L620,470 L780,410 L940,475 L1100,430 L1280,490 L1420,430 L1580,495 L1740,440 L1920,510 L2080,460 L2240,520 L2400,470 L2400,800 L0,800 Z"
+        fill="url(#mFar)"/>
+      <path d="M0,600 L120,540 L260,580 L400,510 L560,575 L720,525 L880,590 L1020,535 L1180,595 L1340,540 L1500,600 L1660,550 L1820,610 L1980,560 L2140,620 L2300,570 L2400,600 L2400,800 L0,800 Z"
+        fill="url(#mMid)"/>
+      <path d="M0,700 L100,650 L180,680 L260,640 L360,690 L460,620 L560,680 L660,600 L760,670 L820,610 L900,680 L1020,640 L1120,680 L1240,640 L1360,690 L1480,640 L1600,700 L1740,650 L1880,710 L2020,660 L2180,720 L2320,680 L2400,710 L2400,800 L0,800 Z"
+        fill="url(#mNear)"/>
+
+      <g transform="translate(760,610)">
+        <path d="M0,0 C-8,-4 -10,-14 -6,-22 C-4,-28 -8,-32 -6,-40 C-4,-48 4,-54 12,-52 C20,-50 24,-40 22,-32 C21,-28 24,-22 22,-16 C20,-8 14,-2 10,2 L8,20 L-4,20 Z" fill="#030100"/>
+        <path d="M-8,-26 L26,-6" stroke="#030100" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M-10,-28 L-4,-24" stroke="#6a3a22" strokeWidth="2.5" strokeLinecap="round"/>
+      </g>
+      <g fill="#030100">
+        <path d="M680,680 L672,656 L666,658 L670,644 L664,646 L668,632 L676,626 L684,632 L688,646 L682,644 L686,658 L680,656 Z"/>
+        <path d="M820,688 L810,662 L804,664 L808,648 L802,650 L806,636 L816,630 L826,636 L830,650 L824,648 L828,664 L822,662 L820,688 Z"/>
+        <path d="M900,690 L894,668 L890,670 L894,656 L888,658 L892,644 L898,638 L904,644 L908,658 L902,656 L906,670 L902,668 L900,690 Z"/>
+      </g>
+
+      <path d="M2160,140 a40,40 0 1,0 20,60 a32,32 0 1,1 -20,-60 z" fill="#f4d79e" opacity=".85"/>
+      <rect x="0" y="0" width="2400" height="800" filter="url(#grain)" opacity=".5"/>
+    </svg>
+  );
+}
+
+function PjArt({ kind }){
+  const common = { xmlns:"http://www.w3.org/2000/svg", viewBox:"0 0 400 300", preserveAspectRatio:"xMidYMid slice" };
+  if (kind === 'data') return (
+    <svg {...common}>
+      <rect width="400" height="300" fill="#e8e1d3"/>
+      <g stroke="#0f0d0a" strokeWidth="1.5" fill="none">
+        {Array.from({length:14}).map((_,i)=>(<line key={i} x1={30+i*26} y1="60" x2={30+i*26} y2={60+Math.abs(Math.sin(i*1.3))*180}/>))}
+      </g>
+      <circle cx="300" cy="110" r="54" fill="#c0392b" opacity=".9"/>
+      <text x="22" y="40" fontFamily="JetBrains Mono" fontSize="11" letterSpacing="2" fill="#0f0d0a">SIGNALS / 01</text>
+    </svg>
+  );
+  if (kind === 'market') return (
+    <svg {...common}>
+      <rect width="400" height="300" fill="#e8e1d3"/>
+      <polyline fill="none" stroke="#0f0d0a" strokeWidth="2"
+        points="20,220 60,200 100,210 140,170 180,185 220,140 260,155 300,110 340,130 380,70"/>
+      <polyline fill="none" stroke="#c0392b" strokeWidth="2" strokeDasharray="4 4"
+        points="20,230 60,215 100,225 140,180 180,200 220,155 260,170 300,120 340,145 380,85"/>
+      <text x="22" y="40" fontFamily="JetBrains Mono" fontSize="11" letterSpacing="2" fill="#0f0d0a">MARKETS / 02</text>
+    </svg>
+  );
+  return (
+    <svg {...common}>
+      <rect width="400" height="300" fill="#e8e1d3"/>
+      <rect x="60" y="70" width="280" height="160" fill="#0f0d0a"/>
+      <polygon points="180,120 180,180 235,150" fill="#c0392b"/>
+      <text x="22" y="40" fontFamily="JetBrains Mono" fontSize="11" letterSpacing="2" fill="#0f0d0a">STREAM / 03</text>
+    </svg>
+  );
+}
+
+function Hero(){
+  return (
+    <section className="hero" id="top">
+      <div className="hero-below">
+        <div>
+          <div className="hero-eyebrow">— The Silent Engineer —</div>
+          <h1 className="hero-name">Soham<br/><em>Shah.</em></h1>
+        </div>
+        <div>
+          <div className="hero-tag">
+            Engineer working at the edge of <b>MLOps</b>, <b>data engineering</b>, and full-stack systems — quietly, precisely, and with intent.
+          </div>
+          <div className="hero-actions">
+            <a href="#experience" className="btn-primary">View Dossier <span className="arrow">→</span></a>
+            <a href="#contact" className="btn-ghost">Make Contact</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Principles(){
+  const items = [
+    { n:'01', h:'Restraint.', b:"Fewer moving parts. Every dependency is a weight to carry. A ninja doesn't carry what they don't need." },
+    { n:'02', h:'Precision.', b:'Measure twice. Ship once. Tests, telemetry, and reversibility before clever code.' },
+    { n:'03', h:'Craft.',     b:'The invisible 80% — error states, edge cases, clean handoffs — is where the work shows.' },
+  ];
+  return (
+    <section className="principles" id="principles">
+      <div className="chap reveal">
+        <div className="label"><span className="idx">02</span>Ethos</div>
+        <div className="title"><em>Principles.</em></div>
+        <div className="rule"></div>
+      </div>
+      <div className="principles-grid">
+        {items.map(it => (
+          <div className="p-card reveal" key={it.n}>
+            <div className="num">{it.n}</div>
+            <div className="h">{it.h}</div>
+            <div className="b">{it.b}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function About(){
+  return (
+    <section className="about" id="about">
+      <div className="chap reveal">
+        <div className="label"><span className="idx">03</span>Who It's For</div>
+        <div className="title">Who It's <em>For.</em></div>
+        <div className="rule"></div>
+      </div>
+      <div className="about-grid">
+        <div className="reveal">
+          <div className="bio">
+            <p>Teams shipping <b>AI/ML</b>, fintech, and cloud-native software. Hiring managers who value <span className="mark">craft over theatrics</span>. Engineers who've read the same Kernighan you have.</p>
+            <p>I'm completing my <b>MS in Computer Science</b> at <b>Arizona State University</b>, with four years of shipped work across MLOps pipelines, distributed data engineering, and full-stack applications.</p>
+            <p>I've processed a million records a day, threaded LLMs into shipping analytics, and kept production models honest. I write code the way a ninja moves: fast, quiet, final.</p>
+          </div>
+          <div className="stats">
+            <div className="stat"><div className="v">3.78</div><div className="l">MS · GPA</div></div>
+            <div className="stat"><div className="v">4+</div><div className="l">Years built</div></div>
+            <div className="stat"><div className="v">1M+</div><div className="l">Records / day</div></div>
+          </div>
+        </div>
+        <div className="reveal">
+          <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,letterSpacing:'.3em',textTransform:'uppercase',color:'var(--muted)',marginBottom:18}}>— The Arsenal —</div>
+          <div className="skills">
+            {[
+              ['Python / ML', 95],
+              ['TypeScript', 85],
+              ['React / Next.js', 80],
+              ['AWS / GCP', 88],
+              ['Docker / Kubernetes', 82],
+              ['MLOps / CI-CD', 90],
+              ['Data Engineering', 87],
+            ].map(([k,v]) => (
+              <div className="skill" key={k}>
+                <div className="row"><span>{k}</span><span className="p">{v}%</span></div>
+                <div className="bar" style={{'--w': v+'%'}}></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Experience(){
+  const items = [
+    { co:'PhoenixCore Systems', date:'Dec 2025 — Present', role:'Full-Stack Developer',
+      bullets:['Production-grade internal tooling on React + Node microservices.','CI/CD, observability dashboards, and release runbooks.','AI-assisted workflows embedded into operator UIs.'], tags:'React · Node · k8s · Datadog' },
+    { co:'KEEV', date:'Aug 2023 — May 2024', role:'MLOps Engineer',
+      bullets:['Productionized ML pipelines on Kubeflow + GKE; cut training costs ~34%.','Model registry, drift detection, rollback strategy.','Infra-as-code for repeatable experiments across environments.'], tags:'Kubeflow · GCP · Terraform' },
+    { co:'KEEV', date:'Jun 2021 — Aug 2021', role:'Data Engineering / ML Intern',
+      bullets:['Processed 1M+ records/day through Airflow + Spark jobs.','Feature stores feeding real-time scoring services.','First internal LLM-backed analytics prototype.'], tags:'Airflow · Spark · Feast' },
+  ];
+  return (
+    <section className="experience" id="experience">
+      <div className="chap reveal">
+        <div className="label"><span className="idx">04</span>Missions</div>
+        <div className="title"><em>Dossier.</em></div>
+        <div className="rule"></div>
+      </div>
+      <div className="exp-list">
+        {items.map((it,i)=>(
+          <div className="exp-item reveal" key={i}>
+            <div>
+              <div className="co">{it.co}</div>
+              <div className="date">{it.date}</div>
+            </div>
+            <div>
+              <div className="role">— {it.role}</div>
+              <ul>{it.bullets.map((b,j)=>(<li key={j}>{b}</li>))}</ul>
+            </div>
+            <div className="tags">{it.tags}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Projects(){
+  const pj = [
+    { n:'DataWhisperer', art:'data',   d:'LLM-powered NLP analytics. Natural-language questions over tabular data with evaluator loops and guardrails.', tags:['Python','CodeLlama','Pandas','FastAPI'] },
+    { n:'MarketMind',    art:'market', d:'Stock prediction blending LSTM sequence models with sentiment NLP — ~89% directional accuracy out-of-sample.', tags:['PyTorch','LSTM','Sentiment'] },
+    { n:'Stream Platform', art:'stream', d:'Full-stack streaming app: adaptive bitrate, auth, uploads, HLS segmentation — production-ready pipeline.', tags:['React','Node','FFmpeg'] },
+  ];
+  return (
+    <section className="projects" id="projects">
+      <div className="chap reveal">
+        <div className="label" style={{color:'var(--muted)'}}><span className="idx">05</span>Techniques</div>
+        <div className="title">Projects.</div>
+        <div className="rule"></div>
+      </div>
+      <div className="pj-grid">
+        {pj.map((p,i)=>(
+          <a className="pj-card reveal" key={p.n} href={{"DataWhisperer":"https://github.com/soham842op/DataWhisperer","MarketMind":"https://github.com/soham842op/MarketMind","Stream Platform":"https://github.com/soham842op/Video-Streaming-Platform"}[p.n] || "#"} target="_blank" rel="noreferrer">
+            <div className="pj-hero">
+              <PjArt kind={p.art}/>
+              <div className="idx">0{i+1} / 0{pj.length}</div>
+            </div>
+            <div className="pj-body">
+              <div className="pj-name">{p.n}</div>
+              <div className="pj-desc">{p.d}</div>
+              <div className="pj-tags">{p.tags.map(t=>(<span className="pj-tag" key={t}>{t}</span>))}</div>
+              <div className="pj-arrow"><span>Case Study</span><span className="ar">↗</span></div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Education(){
+  return (
+    <section className="education" id="education">
+      <div className="chap reveal">
+        <div className="label"><span className="idx">06</span>Training</div>
+        <div className="title">Education.</div>
+        <div className="rule"></div>
+      </div>
+      <div className="edu-grid">
+        <div className="edu-card reveal">
+          <div className="deg">MS, Computer Science</div>
+          <div className="school">Arizona State University</div>
+          <div className="meta"><span>2024 — 2026</span><span>GPA · 3.78</span><span>Tempe, AZ</span></div>
+        </div>
+        <div className="edu-card reveal">
+          <div className="deg">B.Tech, Computer Engineering</div>
+          <div className="school">K. J. Somaiya College of Engineering</div>
+          <div className="meta"><span>2020 — 2024</span><span>Mumbai, IN</span></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Contact(){
+  return (
+    <section className="contact" id="contact">
+      <div className="kanji-bg">連</div>
+      <div className="reveal">
+        <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,letterSpacing:'.36em',textTransform:'uppercase',color:'var(--muted)',marginBottom:16,position:'relative',zIndex:2}}>— 07 · Contact —</div>
+        <h2>Make <em>Contact.</em></h2>
+        <p>Open to full-time opportunities · USA · 2026</p>
+        <div className="contact-links">
+          <a href="mailto:sshah270@asu.edu">✉ sshah270@asu.edu</a>
+          <a href="tel:+16232845285">☎ (623) 284-5285</a>
+          <a href="https://github.com/soham842op" target="_blank" rel="noreferrer">⌥ github/soham842op</a>
+          <a href="resume.pdf" download="Soham_Shah_Resume.pdf">⬇ Resume</a>
+        </div>
+        <div className="contact-coords"><span>33.4255°N</span><span>111.9400°W</span><span>Tempe, AZ</span></div>
+      </div>
+    </section>
+  );
+}
+
+function Footer(){
+  return (
+    <footer className="footer">
+      <div className="brand"><span className="kj">忍</span><span>Soham Shah · 2026</span></div>
+      <div>/ The Silent Engineer /</div>
+      <div>© All missions reserved.</div>
+    </footer>
+  );
+}
+
+function MainPage(){
+  useReveal();
+  return (
+    <>
+      <ScrollProgress/>
+      <Nav/>
+      <div className="paper-bg" style={{position:'relative'}}>
+        <Hero/>
+        <Principles/>
+        <About/>
+        <Experience/>
+        <Projects/>
+        <Education/>
+        <Contact/>
+      </div>
+      <Footer/>
+    </>
+  );
+}
+
+window.MainPage = MainPage;
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP — entry point
+═══════════════════════════════════════════════════════ -->
+<script type="text/babel">
+
+function App(){
+  const [showIntro, setShowIntro] = React.useState(() => {
+    try { return sessionStorage.getItem('introSeen') !== '1'; }
+    catch(e) { return true; }
+  });
+
+  const handleIntroDone = () => {
+    try { sessionStorage.setItem('introSeen', '1'); } catch(e){}
+    setShowIntro(false);
+  };
+
+  return (
+    <>
+      <MainPage/>
+      {showIntro && <Intro onDone={handleIntroDone}/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
